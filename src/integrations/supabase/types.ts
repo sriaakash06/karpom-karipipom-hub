@@ -17,30 +17,39 @@ export type Database = {
       attendance: {
         Row: {
           created_at: string | null
+          google_meet_email: string | null
           id: string
           joined_at: string | null
-          meeting_code: string
+          meet_link: string | null
+          meeting_code: string | null
           student_id: string
           subject_id: string
           subject_name: string
+          verified: boolean | null
         }
         Insert: {
           created_at?: string | null
+          google_meet_email?: string | null
           id?: string
           joined_at?: string | null
-          meeting_code: string
+          meet_link?: string | null
+          meeting_code?: string | null
           student_id: string
           subject_id: string
           subject_name: string
+          verified?: boolean | null
         }
         Update: {
           created_at?: string | null
+          google_meet_email?: string | null
           id?: string
           joined_at?: string | null
-          meeting_code?: string
+          meet_link?: string | null
+          meeting_code?: string | null
           student_id?: string
           subject_id?: string
           subject_name?: string
+          verified?: boolean | null
         }
         Relationships: [
           {
