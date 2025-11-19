@@ -1,15 +1,20 @@
 import { useParams, Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/Navbar";
 import { subjects } from "@/lib/subjects";
 import { ArrowLeft, Video, Calendar, User, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function SubjectDetail() {
   const { subjectId } = useParams();
   const { toast } = useToast();
   const subject = subjects.find((s) => s.id === subjectId);
+  const [meetingCode, setMeetingCode] = useState("");
 
   if (!subject) {
     return (
@@ -27,13 +32,52 @@ export default function SubjectDetail() {
     );
   }
 
-  const handleJoinClass = () => {
-    // In a real app, this would capture student details and save attendance
-    toast({
-      title: "Joining Class",
-      description: "Opening Google Meet link...",
-    });
-    window.open(subject.meetLink, "_blank");
+  const handleJoinClass = async () => {
+    if (!meetingCode.trim()) {
+      toast({
+        title: "Meeting Code Required",
+        description: "Please enter the meeting code to join the class",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Not Authenticated",
+          description: "Please log in to join the class",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase.from("attendance").insert({
+        student_id: user.id,
+        subject_id: subject.id,
+        subject_name: subject.name,
+        meeting_code: meetingCode.trim(),
+        meet_link: subject.meetLink,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Attendance Recorded",
+        description: "Opening Google Meet link...",
+      });
+      
+      window.open(subject.meetLink, "_blank");
+    } catch (error) {
+      console.error("Error recording attendance:", error);
+      toast({
+        title: "Error",
+        description: "Failed to record attendance. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const Icon = subject.icon;
@@ -93,15 +137,27 @@ export default function SubjectDetail() {
                 </div>
               </div>
 
-              <div className="mt-8 flex gap-4">
-                <Button size="lg" onClick={handleJoinClass} className="flex-1">
-                  <Video className="mr-2 h-5 w-5" /> Join Live Class
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <a href={subject.meetLink} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="mr-2 h-5 w-5" /> Open in New Tab
-                  </a>
-                </Button>
+              <div className="mt-8 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="meetingCode">Meeting Code</Label>
+                  <Input
+                    id="meetingCode"
+                    placeholder="Enter meeting code from Google Meet"
+                    value={meetingCode}
+                    onChange={(e) => setMeetingCode(e.target.value)}
+                  />
+                </div>
+                
+                <div className="flex gap-4">
+                  <Button size="lg" onClick={handleJoinClass} className="flex-1">
+                    <Video className="mr-2 h-5 w-5" /> Join Live Class
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <a href={subject.meetLink} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="mr-2 h-5 w-5" /> Open in New Tab
+                    </a>
+                  </Button>
+                </div>
               </div>
             </Card>
 
