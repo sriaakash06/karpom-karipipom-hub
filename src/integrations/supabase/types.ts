@@ -14,7 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance: {
+        Row: {
+          created_at: string | null
+          id: string
+          joined_at: string | null
+          meeting_code: string
+          student_id: string
+          subject_id: string
+          subject_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          meeting_code: string
+          student_id: string
+          subject_id: string
+          subject_name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          meeting_code?: string
+          student_id?: string
+          subject_id?: string
+          subject_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          id: string
+          role?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
