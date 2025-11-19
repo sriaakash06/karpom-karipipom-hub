@@ -7,12 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/Navbar";
 import { subjects } from "@/lib/subjects";
 import { ArrowLeft, Video, Calendar, User, ExternalLink } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function SubjectDetail() {
   const { subjectId } = useParams();
-  const { toast } = useToast();
   const subject = subjects.find((s) => s.id === subjectId);
   const [meetingCode, setMeetingCode] = useState("");
 

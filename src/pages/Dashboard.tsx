@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Clock, Trophy, TrendingUp, Calendar, Bell } from "lucide-react";
+import { BookOpen, Clock, Trophy, TrendingUp, Calendar, Bell, History } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
@@ -134,6 +134,20 @@ export default function Dashboard() {
                   time="Yesterday"
                 />
               </div>
+            </Card>
+
+            {/* Quick Access to Attendance History */}
+            <Card className="p-6">
+              <h3 className="text-xl font-bold mb-4 text-card-foreground flex items-center gap-2">
+                <History className="h-5 w-5 text-primary" />
+                Attendance
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                View your complete attendance history and track your progress
+              </p>
+              <Button asChild className="w-full">
+                <Link to="/attendance-history">View History</Link>
+              </Button>
             </Card>
 
             {/* Learning Streak */}

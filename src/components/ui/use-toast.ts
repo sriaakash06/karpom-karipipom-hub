@@ -6,6 +6,7 @@ type ToastProps = {
   description?: string
   action?: React.ReactNode
   duration?: number
+  variant?: "default" | "destructive"
 }
 
 type ToastActionElement = React.ReactNode
@@ -16,23 +17,35 @@ export type Toast = ToastProps & {
 }
 
 let toastId = 0
-let listeners: ((toast: Toast) => void)[] = []
+let listeners: ((toasts: Toast[]) => void)[] = []
+let memoryState: Toast[] = []
+
+function dispatch(toast: Toast) {
+  memoryState = [toast, ...memoryState].slice(0, 5)
+  listeners.forEach((listener) => listener(memoryState))
+}
 
 export function useToast() {
-  const [toast, setToast] = React.useState<Toast | null>(null)
+  const [toasts, setToasts] = React.useState<Toast[]>(memoryState)
 
   React.useEffect(() => {
-    const listener = (newToast: Toast) => {
-      setToast(newToast)
-    }
-    listeners.push(listener)
+    listeners.push(setToasts)
     return () => {
-      listeners = listeners.filter((l) => l !== listener)
+      const index = listeners.indexOf(setToasts)
+      if (index > -1) {
+        listeners.splice(index, 1)
+      }
     }
   }, [])
 
   return {
-    toast,
+    toasts,
+    toast: (props: Omit<ToastProps, "id">) => {
+      const id = `toast-${++toastId}`
+      const newToast: Toast = { id, ...props }
+      dispatch(newToast)
+      return id
+    },
   }
 }
 
@@ -41,6 +54,7 @@ export function toast({
   description,
   action,
   duration = 3000,
+  variant = "default",
 }: Omit<ToastProps, "id">) {
   const id = `toast-${++toastId}`
 
@@ -50,9 +64,10 @@ export function toast({
     description,
     action,
     duration,
+    variant,
   }
 
-  listeners.forEach((listener) => listener(newToast))
+  dispatch(newToast)
 
   return id
 }
